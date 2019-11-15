@@ -184,7 +184,10 @@ namespace BangazonWorkforce.Controllers
                         employee = new Employee
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                        }
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName"))
+
+                        };
                     }
                 }
             }
