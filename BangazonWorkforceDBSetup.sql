@@ -6,10 +6,10 @@ IF NOT EXISTS (
     FROM sys.databases
     WHERE [name] = N'BangazonWorkforce'
 )
-CREATE DATABASE BangazonSqlExercise
+CREATE DATABASE BangazonWorkforce
 GO
 
-USE BangazonSqlExercise
+USE BangazonWorkforce
 GO
 
 DROP TABLE IF EXISTS EmployeeTraining;
