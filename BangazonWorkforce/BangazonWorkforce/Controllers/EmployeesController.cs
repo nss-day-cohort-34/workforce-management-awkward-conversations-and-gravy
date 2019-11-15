@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
+using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
@@ -41,6 +43,7 @@ namespace BangazonWorkforce.Controllers
                                              e.FirstName,
                                              e.LastName,
                                              e.DepartmentId,
+                                             e.IsSupervisor,
                                              d.Name as DepartmentName
                                         FROM Employee e
                                    LEFT JOIN Department d on d.Id = e.DepartmentId
@@ -57,6 +60,7 @@ namespace BangazonWorkforce.Controllers
                                 FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                                 LastName = reader.GetString(reader.GetOrdinal("LastName")),
                                 DepartmentId = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
+                                IsSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor")),
                                 Department = new Department()
                                 {
                                     Id = reader.GetInt32(reader.GetOrdinal("DepartmentId")),
@@ -81,19 +85,50 @@ namespace BangazonWorkforce.Controllers
         // GET: Employees/Create
         public ActionResult Create()
         {
-            return View();
+            var viewModel = new EmployeeCreateViewModel();
+            var departments = GetAllDepartments();
+            var selectItems = departments
+                .Select(department => new SelectListItem
+                {
+                    Text = department.Name,
+                    Value = department.Id.ToString()
+                })
+                .ToList();
+
+            selectItems.Insert(0, new SelectListItem
+            {
+                Text = "Choose Department...",
+                Value = "0"
+            });
+            viewModel.Departments = selectItems;
+            return View(viewModel);
         }
 
         // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(EmployeeCreateViewModel model)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"INSERT INTO Employee
+                ( FirstName, LastName, IsSupervisor, DepartmentId )
+                VALUES
+                ( @firstName, @lastName, @isSupervisor, @departmentId )";
+                        cmd.Parameters.Add(new SqlParameter("@firstName", model.Employee.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastName", model.Employee.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@isSupervisor", model.Employee.IsSupervisor));
+                        cmd.Parameters.Add(new SqlParameter("@departmentId", model.Employee.DepartmentId));
+                        cmd.ExecuteNonQuery();
 
-                return RedirectToAction(nameof(Index));
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
             }
             catch
             {
@@ -146,5 +181,34 @@ namespace BangazonWorkforce.Controllers
                 return View();
             }
         }
+
+        private List<Department> GetAllDepartments()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, name as departmentName FROM Department";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Department> departments = new List<Department>();
+                    while (reader.Read())
+                    {
+                        departments.Add(new Department
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("departmentName")),
+                        });
+                    }
+
+                    reader.Close();
+
+                    return departments;
+                }
+            }
+        }
     }
 }
+
+
