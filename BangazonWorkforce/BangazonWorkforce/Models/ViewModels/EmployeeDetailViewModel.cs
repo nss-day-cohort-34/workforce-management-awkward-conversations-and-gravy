@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BangazonWorkforce.Models
+namespace BangazonWorkforce.Models.ViewModels
 {
-    public class Employee
+    public class EmployeeDetailViewModel
     {
         public int Id { get; set; }
 
@@ -19,5 +19,7 @@ namespace BangazonWorkforce.Models
         [Display(Name = "Supervisor")]
         public bool IsSupervisor { get; set; }
         public Department Department { get; set; }
+        public Computer Computer { get; set; }
+        public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
     }
 }
