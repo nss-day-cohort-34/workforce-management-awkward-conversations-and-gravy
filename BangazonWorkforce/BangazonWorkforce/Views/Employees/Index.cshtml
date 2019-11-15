@@ -22,32 +22,40 @@
                 @Html.DisplayNameFor(model => model.LastName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.IsSupervisor)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Department.Name)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model)
+        {
         <tr>
+           
+                <td class="@(item.IsSupervisor ? "newColor" : "") ">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="@(item.IsSupervisor ? "newColor" : "") ">
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td class="@(item.IsSupervisor ? "newColor" : "") ">
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td class="@(item.IsSupervisor ? "newColor" : "") ">
+                    @(item.IsSupervisor ? "Yes" : "No")
+                </td>
+                <td class="@(item.IsSupervisor ? "newColor" : "") ">
+                    @Html.DisplayFor(modelItem => item.Department.Name)
+                </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Department.Name)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new {  id=item.Id  }) |
-                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
             </td>
         </tr>
-}
+        }
     </tbody>
 </table>
