@@ -16,6 +16,7 @@ namespace BangazonWorkforce.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
         public int DepartmentId { get; set; }
+        [Display(Name = "Supervisor")]
         public bool IsSupervisor { get; set; }
         public Department Department { get; set; }
     }
