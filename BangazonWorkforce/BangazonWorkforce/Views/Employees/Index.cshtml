@@ -13,9 +13,6 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.FirstName)
             </th>
             <th>
@@ -35,9 +32,7 @@
         {
         <tr>
            
-                <td class="@(item.IsSupervisor ? "newColor" : "") ">
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
+               
                 <td class="@(item.IsSupervisor ? "newColor" : "") ">
                     @Html.DisplayFor(modelItem => item.FirstName)
                 </td>
