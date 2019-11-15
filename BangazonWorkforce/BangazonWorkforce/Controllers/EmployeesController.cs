@@ -146,5 +146,48 @@ namespace BangazonWorkforce.Controllers
                 return View();
             }
         }
+
+
+        /*  HELPER METHODS   */
+        private Employee GetEmployeeById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT e.FirstName, 
+		                                       e.LastName, 
+		                                       d.Name as DepartmentName, 
+		                                       tp.Name as TrainingProgramName,
+		                                       tp.EndDate as TrainingProgramEndDate,
+		                                       c.Manufacturer + ' ' + c.Make as Computer
+                                          FROM Employee e
+                                     LEFT JOIN Department d 
+                                            ON d.Id = e.DepartmentId
+                                     LEFT JOIN ComputerEmployee ce 
+                                            ON ce.EmployeeId = e.Id
+                                     LEFT JOIN Computer c 
+                                            ON ce.ComputerId = c.Id
+                                     LEFT JOIN EmployeeTraining et 
+                                            ON et.EmployeeId = e.Id
+                                     LEFT JOIN TrainingProgram tp 
+                                            ON tp.Id = et.TrainingProgramId 
+	                                     WHERE tp.EndDate >= GETDATE() OR tp.EndDate IS NULL
+                                      ORDER BY e.LastName, e.FirstName;";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    var reader = cmd.ExecuteReader();
+
+                    Employee employee = null;
+                    if (reader.Read())
+                    {
+                        employee = new Employee
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        }
+                    }
+                }
+            }
+        }
     }
 }
