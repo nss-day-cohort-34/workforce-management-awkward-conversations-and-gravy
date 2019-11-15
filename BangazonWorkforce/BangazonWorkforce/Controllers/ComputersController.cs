@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
@@ -27,12 +28,12 @@ namespace BangazonWorkforce.Controllers
             }
         }
         // GET: Computers
-        public ActionResult Index() 
+        public ActionResult Index()
         {
-            using (SqlConnection conn = Connection) 
+            using (SqlConnection conn = Connection)
             {
-                conn.Open(); 
-                using (SqlCommand cmd = conn.CreateCommand()) 
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
 
 
@@ -41,7 +42,7 @@ namespace BangazonWorkforce.Controllers
                                                         FROM Computer c
                                                         ORDER BY c.PurchaseDate, c.Manufacturer, c.Make";
 
-                    SqlDataReader reader = cmd.ExecuteReader(); 
+                    SqlDataReader reader = cmd.ExecuteReader();
                     List<Computer> computers = new List<Computer>();
                     while (reader.Read())
                     {
@@ -52,13 +53,14 @@ namespace BangazonWorkforce.Controllers
                                 Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer")),
                                 Make = reader.GetString(reader.GetOrdinal("Make")),
                                 PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
-                                DecomissionDate = reader.GetDateTime(reader.GetOrdinal("DecomissionDate"))
+                                // The code below checks to see if DecommissionDate is Null. If it is Null, it returns DateTime.MinValue.
+                                DecomissionDate = reader.IsDBNull(reader.GetOrdinal("DecomissionDate")) ? DateTime.MinValue : reader.GetDateTime(reader.GetOrdinal("DecomissionDate"))
                             });
                     }
 
-                    reader.Close(); 
+                    reader.Close();
 
-                    return View(computers); 
+                    return View(computers);
                 }
             }
         }
@@ -137,5 +139,6 @@ namespace BangazonWorkforce.Controllers
                 return View();
             }
         }
+
     }
 }

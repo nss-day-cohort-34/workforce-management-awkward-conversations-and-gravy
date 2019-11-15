@@ -40,7 +40,10 @@
                 @Html.DisplayFor(modelItem => item.PurchaseDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DecomissionDate)
+                @if (item.DecomissionDate != DateTime.MinValue)
+                {
+                @Html.DisplayFor(modelItem => @item.DecomissionDate)
+                }
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
