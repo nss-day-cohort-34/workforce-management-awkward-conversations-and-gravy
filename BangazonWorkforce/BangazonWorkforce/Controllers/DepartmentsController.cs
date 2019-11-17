@@ -83,16 +83,15 @@ namespace BangazonWorkforce.Controllers
         {
             try
             {
-
-               
                 using (SqlConnection conn = Connection)
                 {
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @" INSERT INTO Department (Name)
-                                                VALUES (@name)";
+                        cmd.CommandText = @" INSERT INTO Department (Name, Budget)
+                                                VALUES (@name, @budget)";
                         cmd.Parameters.Add(new SqlParameter("@name", department.Name));
+                        cmd.Parameters.Add(new SqlParameter("@budget", department.Budget));
 
 
                         cmd.ExecuteNonQuery();
