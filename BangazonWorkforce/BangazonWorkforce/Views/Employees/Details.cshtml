@@ -35,15 +35,20 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Computer.Manufacturer)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Computer.Make)
+        <dt class="col-sm-12">
+            @Html.DisplayNameFor(model => model.TrainingPrograms)
         </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Computer.Make)
-        </dd>
         @foreach (var item in Model.TrainingPrograms)
         {
-            @Html.DisplayFor(modelItem => item.Name) @Html.DisplayFor(modelItem => item.StartDate) @Html.DisplayFor(modelItem => item.EndDate)
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.Name) 
+            </dd>
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.StartDate) 
+            </dd>
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.EndDate)
+            </dd>
         }
     </dl>
 </div>

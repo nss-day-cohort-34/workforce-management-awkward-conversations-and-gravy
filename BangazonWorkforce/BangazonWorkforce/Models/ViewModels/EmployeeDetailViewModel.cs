@@ -19,6 +19,8 @@ namespace BangazonWorkforce.Models.ViewModels
         [Display(Name = "Supervisor")]
         public bool IsSupervisor { get; set; }
         public Department Department { get; set; }
+
+        [Display(Name = "Computer")]
         public Computer Computer { get; set; }
         public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
     }

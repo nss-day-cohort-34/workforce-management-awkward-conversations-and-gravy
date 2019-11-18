@@ -13,7 +13,7 @@ namespace BangazonWorkforce.Models
         [Display(Name = "Decommission Date")]
         public DateTime? DecommissionDate { get; set; }
         [Required]
-        [Display(Name = "Manufacturer")]
+        [Display(Name = "Computer")]
         public string Manufacturer { get; set; }
         [Required]
         [Display(Name = "Make")]

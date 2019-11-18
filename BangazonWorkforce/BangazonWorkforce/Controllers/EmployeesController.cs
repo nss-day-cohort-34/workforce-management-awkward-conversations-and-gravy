@@ -200,7 +200,7 @@ namespace BangazonWorkforce.Controllers
                                         		  tp.Name as TrainingProgramName,
                                         		  tp.StartDate as TrainingProgramStartDate,
 												  c.Id as ComputerId,
-                                        		  c.Manufacturer + ' ' + c.Make as Computer
+                                                  ISNULL(c.Manufacturer + ' ' + c.Make, 'No Computer') as Computer
                                              FROM Employee e
                                         LEFT JOIN Department d 
                                                ON d.Id = e.DepartmentId
@@ -227,9 +227,13 @@ namespace BangazonWorkforce.Controllers
                                 Id = id,
                                 FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                                 LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                Department = new Department
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("DepartmentName"))
+                                },
                                 Computer = new Computer
                                 {
-                                    Manufacturer = reader.GetString(reader.GetOrdinal("Computer")),
+                                    Manufacturer = reader.GetString(reader.GetOrdinal("Computer"))
                                 },
                                 TrainingPrograms = new List<TrainingProgram>()
                             };
