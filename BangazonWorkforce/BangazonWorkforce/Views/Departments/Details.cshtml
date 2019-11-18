@@ -1,0 +1,25 @@
+﻿@model BangazonWorkforce.Models.ViewModels.DepartmentEditViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>@Html.DisplayFor(model => model.Department.Name)</h4>
+    <hr />
+    <h3>@Html.DisplayNameFor(model => model.Department.Budget) : @Html.DisplayFor(model => model.Department.Budget)</h3>
+    @foreach (var item in Model.Employees)
+    {
+
+
+        <h5 style="font-weight: @(item.IsSupervisor ? "Bold" : "Normal")">
+            @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)
+        </h5>
+    }
+
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
