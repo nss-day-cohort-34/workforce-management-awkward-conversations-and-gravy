@@ -139,11 +139,76 @@ namespace BangazonWorkforce.Controllers
         // GET: Employees/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var viewModel = new EmployeeEditViewModel();
+            var departments = GetAllDepartments();
+            var selectItems = departments
+                .Select(department => new SelectListItem
+                {
+                    Text = department.Name,
+                    Value = department.Id.ToString()
+                })
+                .ToList();
+
+            selectItems.Insert(0, new SelectListItem
+            {
+                Text = "Choose department...",
+                Value = "0"
+            });
+            viewModel.Departments = selectItems;
+
+            var computers = GetAllComputers();
+            var selectItemsComputers = computers
+                .Select(computer => new SelectListItem
+                {
+                    Text = computer.Name,
+                    Value = computer.Id.ToString()
+                })
+                .ToList();
+
+            selectItems.Insert(0, new SelectListItem
+            {
+                Text = "Choose department...",
+                Value = "0"
+            });
+            viewModel.Computers = selectItemsComputers;
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                               SELECT s.Id, s.firstName, s.lastName, s.slackHandle, s.departmentId
+                                 FROM Employee s
+                                    WHERE @id = s.id
+                                         ";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Employee employee = new Employee();
+                    while (reader.Read())
+                    {
+                        employee = new Employee
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            FirstName = reader.GetString(reader.GetOrdinal("firstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("lastName")),
+                            SlackHandle = reader.GetString(reader.GetOrdinal("slackHandle")),
+                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
+                        };
+                        viewModel.Employee = employee;
+                    }
+
+                    reader.Close();
+
+                }
+            }
+            return View(viewModel);
         }
 
-        // POST: Employees/Edit/5
-        [HttpPost]
+    }
+
+    // POST: Employees/Edit/5
+    [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
         {
