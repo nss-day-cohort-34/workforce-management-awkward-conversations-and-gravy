@@ -1,0 +1,44 @@
+﻿@model BangazonWorkforce.Models.ViewModels.EmployeeEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.DisplayNameFor(model => model.Employee.FirstName) @Html.DisplayFor(model => model.Employee.FirstName)
+            <div class="form-group">
+                <label asp-for="Employee.LastName" class="control-label"></label>
+                <input asp-for="Employee.LastName" class="form-control" />
+                <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.DepartmentId" class="control-label"></label>
+                <select asp-for="Employee.DepartmentId" asp-items="@Model.Departments"></select>
+                <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.Id" class="control-label"></label>
+                <select asp-for="Computer.Id" asp-items="@Model.Computers"></select>
+                <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

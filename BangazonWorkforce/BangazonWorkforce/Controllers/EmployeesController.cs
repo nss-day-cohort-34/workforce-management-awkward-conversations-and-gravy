@@ -142,6 +142,8 @@ namespace BangazonWorkforce.Controllers
         {
             var viewModel = new EmployeeEditViewModel();
             var departments = GetAllDepartments();
+            var oneComputer = GetComputerById(id);
+            viewModel.Computer = oneComputer;
             var selectItems = departments
                 .Select(department => new SelectListItem
                 {
@@ -158,27 +160,49 @@ namespace BangazonWorkforce.Controllers
             viewModel.Departments = selectItems;
 
             var computers = GetAllComputers();
-            var selectItemsComputers = computers
-                .Select(computer => new SelectListItem
-                {
-                    Text = computer.Name,
-                    Value = computer.Id.ToString()
-                })
-                .ToList();
-
-            selectItems.Insert(0, new SelectListItem
+            if (oneComputer == null)
             {
-                Text = "Choose department...",
-                Value = "0"
-            });
-            viewModel.Computers = selectItemsComputers;
+                var selectItemsComputers = computers
+                    .Select(computer => new SelectListItem
+                    {
+                        Text = computer.Make,
+                        Value = computer.Id.ToString()
+                    })
+                    .ToList();
+
+                selectItemsComputers.Insert(0, new SelectListItem
+                {
+                    Text = "Choose computer...",
+                    Value = "0"
+                });
+                viewModel.Computers = selectItemsComputers;
+            }
+            else
+            {
+
+                computers.Add(oneComputer);
+                var selectItemsComputers = computers
+                    .Select(computer => new SelectListItem
+                    {
+                        Text = computer.Make,
+                        Value = computer.Id.ToString()
+                    })
+                    .ToList();
+
+                selectItemsComputers.Insert(0, new SelectListItem
+                {
+                    Text = "Choose computer...",
+                    Value = "0"
+                });
+                viewModel.Computers = selectItemsComputers;
+            }
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                               SELECT s.Id, s.firstName, s.lastName, s.slackHandle, s.departmentId
+                               SELECT s.Id, s.firstName, s.lastName, s.departmentId
                                  FROM Employee s
                                     WHERE @id = s.id
                                          ";
@@ -193,8 +217,7 @@ namespace BangazonWorkforce.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("firstName")),
                             LastName = reader.GetString(reader.GetOrdinal("lastName")),
-                            SlackHandle = reader.GetString(reader.GetOrdinal("slackHandle")),
-                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
+                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId")),
                         };
                         viewModel.Employee = employee;
                     }
@@ -206,18 +229,30 @@ namespace BangazonWorkforce.Controllers
             return View(viewModel);
         }
 
-    
 
-    // POST: Employees/Edit/5
-    [HttpPost]
+
+        // POST: Employees/Edit/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, EmployeeEditViewModel model)
         {
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "Update Student set firstName = @firstName, lastName = @lastName, cohortId = @cohortId, slackHandle = @slackHandle  where id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@firstName", student.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastName", student.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@cohortId", student.CohortId));
+                        cmd.Parameters.Add(new SqlParameter("@slackHandle", student.SlackHandle));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.ExecuteNonQuery();
+                    }
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -354,7 +389,11 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT Id, name as computerName FROM Computer";
+                    cmd.CommandText = @"Select c.make + ' ' + c. manufacturer as ComputerName, e.firstName, e.lastName, e.departmentId, c.id as ComputerId
+                                from Computer c left
+                                join ComputerEmployee ce on ce.ComputerId = c.Id left
+                                join Employee e on e.Id = ce.EmployeeId
+                                where c.DecomissionDate is null And ce.ComputerId is null ";
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     List<Computer> computers = new List<Computer>();
@@ -362,14 +401,49 @@ namespace BangazonWorkforce.Controllers
                     {
                         computers.Add(new Computer
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Name = reader.GetString(reader.GetOrdinal("departmentName")),
+                            Id = reader.GetInt32(reader.GetOrdinal("ComputerId")),
+                            Make = reader.GetString(reader.GetOrdinal("ComputerName")),
                         });
                     }
 
                     reader.Close();
 
                     return computers;
+                }
+            }
+        }
+        private Computer GetComputerById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        Select c.make, c. manufacturer, c.PurchaseDate
+                                from Computer c left join ComputerEmployee ce on ce.ComputerId = c.Id left join Employee e on e.Id = ce.EmployeeId 
+                                where ce.EmployeeId = @id and DecomissionDate is null;";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    var reader = cmd.ExecuteReader();
+
+                    Computer computer = null;
+                    while (reader.Read())
+                    {
+                        if (computer == null)
+                        {
+                            computer = new Computer
+                            {
+                                Id = id,
+                                Make = reader.GetString(reader.GetOrdinal("make")),
+                                Manufacturer = reader.GetString(reader.GetOrdinal("manufacturer")),
+                                PurchaseDate = reader.GetDateTime(reader.GetOrdinal("purchaseDate")),
+                            };
+                        }
+
+                    }
+                    reader.Close();
+                    return computer;
                 }
             }
         }
