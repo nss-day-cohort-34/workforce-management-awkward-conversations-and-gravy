@@ -83,7 +83,7 @@ namespace BangazonWorkforce.Controllers
         // POST: Computers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(ComputerCreateViewModel model)
+        public ActionResult Create(Computer computer)
         {
             try
             {
@@ -95,9 +95,9 @@ namespace BangazonWorkforce.Controllers
                         cmd.CommandText = @"
                                                         INSERT INTO Computer (PurchaseDate, DecomissionDate, Manufacturer, Make)
                                                         VALUES (@PurchaseDate, Null, @Manufacturer, @Make)";
-                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", model.Computer.PurchaseDate));
-                        cmd.Parameters.Add(new SqlParameter("@Manufacturer", model.Computer.Manufacturer));
-                        cmd.Parameters.Add(new SqlParameter("@Make", model.Computer.Make));
+                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", computer.PurchaseDate));
+                        cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
+                        cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
                         cmd.ExecuteNonQuery();
 
                         return RedirectToAction(nameof(Index));
