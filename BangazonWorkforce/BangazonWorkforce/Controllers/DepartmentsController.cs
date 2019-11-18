@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
+using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -67,7 +68,56 @@ namespace BangazonWorkforce.Controllers
         // GET: Departments/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var viewModel = new DepartmentEditViewModel();
+
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                               SELECT d.Id, d.name, d.budget, e.firstName, e.lastName, e.isSupervisor, e.Id as EmployeeId
+                                 FROM Department d
+                                    Left join Employee e on e.DepartmentId = d.id
+                                    WHERE @id = d.id
+                                    Order by e.isSupervisor desc
+                                         ";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Department department = new Department();
+                    while (reader.Read())
+                    {
+                        if (viewModel.Department == null)
+                        {
+                            department = new Department
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("name")),
+                                Budget = reader.GetInt32(reader.GetOrdinal("budget")),
+                            };
+                            viewModel.Department = department;
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
+                        {
+                            viewModel.Employees.Add(
+                                new Employee()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                    DepartmentId = id,
+                                    IsSupervisor = reader.GetBoolean(reader.GetOrdinal("IsSupervisor"))
+                                });
+                        }
+
+                    }
+
+                    reader.Close();
+
+                }
+            }
+            return View(viewModel);
         }
 
         // GET: Departments/Create
