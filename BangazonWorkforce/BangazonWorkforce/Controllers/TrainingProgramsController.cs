@@ -218,10 +218,12 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"Select e.FirstName,et.EmployeeId, e.LastName ,tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
+                    cmd.CommandText = @"Select et.EmployeeId, e.FirstName ,e.LastName,tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
                                         From TrainingProgram tp Join EmployeeTraining et
                                         ON et.TrainingProgramId = tp.Id
-                                        JOIN Employee e ON e.Id = et.EmployeeId";
+                                        JOIN Employee e ON e.Id = et.EmployeeId
+                                         ";
+                    
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
                     TrainingProgram trainingProgram = null;
