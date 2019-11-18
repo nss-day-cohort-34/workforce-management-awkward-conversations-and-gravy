@@ -1,21 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BangazonWorkforce.Models
-{ 
+{
     public class TrainingProgram
     {
-        [Required]
-        public int Id { get; set; }
-        [Required]
-        [Display(Name = "Training Program")]
+        public int Id{ get; set; }
+
         public string Name { get; set; }
-        [Required]
         [Display(Name = "Start Date")]
         public DateTime StartDate { get; set; }
-        [Required]
         [Display(Name = "End Date")]
         public DateTime EndDate { get; set; }
+        [Display(Name = "Max Attendees")]
         public int MaxAttendees { get; set; }
     }
 }
