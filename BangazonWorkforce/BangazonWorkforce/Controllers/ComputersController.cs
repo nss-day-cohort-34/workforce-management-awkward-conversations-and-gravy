@@ -142,13 +142,26 @@ namespace BangazonWorkforce.Controllers
 
         // POST: Computers/Delete/5
         [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteConfirmed(int id)
         {
             try
             {
-                // TODO: Add delete logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"DELETE c
+                                                                FROM Computer c
+                                                                LEFT JOIN ComputerEmployee ce ON c.Id = ce.ComputerId
+                                                                WHERE ce.AssignDate Is Null AND  c.Id = @Id";
+                        cmd.Parameters.Add(new SqlParameter("@Id", id));
 
+                        cmd.ExecuteNonQuery();
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -165,18 +178,17 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                                        SELECT c.Id, c.Manufacturer, c.Make, c.PurchaseDate, c.DecomissionDate
+                                                        SELECT c.Id, c.Manufacturer, c.Make, c.PurchaseDate, c.DecomissionDate, COUNT(ce.Id) AS AssignmentCount
                                                         FROM Computer c
+                                                        LEFT JOIN ComputerEmployee ce ON c.Id = ce.ComputerId
                                                         WHERE c.Id = @Id
-                                                        ORDER BY c.PurchaseDate, c.Manufacturer, c.Make";
-
+                                                        GROUP BY c.PurchaseDate, c.Manufacturer, c.Make, c.Id, c.DecomissionDate";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     Computer theComputer = null;
                     if (reader.Read())
                     {
-                        //if (theComputer == null)
                         {
                             theComputer = new Computer
                             {
