@@ -267,6 +267,7 @@ namespace BangazonWorkforce.Controllers
                         cmd.Parameters.Add(new SqlParameter("@departmentId", model.Employee.DepartmentId));
                         cmd.Parameters.Add(new SqlParameter("@computerId", model.Computer.Id));
                         cmd.Parameters.Add(new SqlParameter("@assignDate", newDate));
+                        cmd.Parameters.Add(new SqlParameter("@unassignDate", newDate));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@employeeId", id));
                         cmd.ExecuteNonQuery();
