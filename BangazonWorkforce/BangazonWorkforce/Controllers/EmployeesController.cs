@@ -29,12 +29,12 @@ namespace BangazonWorkforce.Controllers
             }
         }
         // GET: Employees
-        public ActionResult Index() 
+        public ActionResult Index()
         {
-            using (SqlConnection conn = Connection) 
+            using (SqlConnection conn = Connection)
             {
-                conn.Open(); 
-                using (SqlCommand cmd = conn.CreateCommand()) 
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
 
 
@@ -49,7 +49,7 @@ namespace BangazonWorkforce.Controllers
                                    LEFT JOIN Department d on d.Id = e.DepartmentId
                                     ORDER BY e.LastName, e.FirstName";
 
-                    SqlDataReader reader = cmd.ExecuteReader(); 
+                    SqlDataReader reader = cmd.ExecuteReader();
                     List<Employee> employees = new List<Employee>();
                     while (reader.Read())
                     {
@@ -69,9 +69,9 @@ namespace BangazonWorkforce.Controllers
                             });
                     }
 
-                    reader.Close(); 
+                    reader.Close();
 
-                    return View(employees); 
+                    return View(employees);
                 }
             }
         }
@@ -79,7 +79,8 @@ namespace BangazonWorkforce.Controllers
         // GET: Employees/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            EmployeeDetailViewModel employee = GetEmployeeById(id);
+            return View(employee);
         }
 
         // GET: Employees/Create
@@ -244,6 +245,78 @@ namespace BangazonWorkforce.Controllers
             catch
             {
                 return View();
+            }
+        }
+
+
+        /*  HELPER METHODS   */
+        private EmployeeDetailViewModel GetEmployeeById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"   SELECT e.FirstName, 
+                                        		  e.LastName, 
+												  d.Id as DepartmentId,
+                                        		  d.Name as DepartmentName, 
+												  tp.Id as TrainingProgramId,
+                                        		  tp.Name as TrainingProgramName,
+                                        		  tp.StartDate as TrainingProgramStartDate,
+												  c.Id as ComputerId,
+                                                  ISNULL(c.Manufacturer + ' ' + c.Make, 'No Computer') as Computer
+                                             FROM Employee e
+                                        LEFT JOIN Department d 
+                                               ON d.Id = e.DepartmentId
+                                        LEFT JOIN ComputerEmployee ce 
+                                               ON ce.EmployeeId = e.Id
+                                        LEFT JOIN Computer c 
+                                               ON ce.ComputerId = c.Id
+                                        LEFT JOIN EmployeeTraining et 
+                                               ON et.EmployeeId = e.Id
+                                        LEFT JOIN TrainingProgram tp 
+                                               ON tp.Id = et.TrainingProgramId 
+                                        	WHERE ce.UnassignDate IS NULL And @id = e.id
+                                         ORDER BY e.LastName, e.FirstName, tp.StartDate";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    var reader = cmd.ExecuteReader();
+
+                    EmployeeDetailViewModel employee = null;
+                    while (reader.Read())
+                    {
+                        if (employee == null)
+                        {
+                            employee = new EmployeeDetailViewModel
+                            {
+                                Id = id,
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                Department = new Department
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("DepartmentName"))
+                                },
+                                Computer = new Computer
+                                {
+                                    Manufacturer = reader.GetString(reader.GetOrdinal("Computer"))
+                                },
+                                TrainingPrograms = new List<TrainingProgram>()
+                            };
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("TrainingProgramId")))
+                        {
+                            employee.TrainingPrograms.Add(
+                                new TrainingProgram()
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("TrainingProgramName")),
+                                    StartDate = reader.GetDateTime(reader.GetOrdinal("TrainingProgramStartDate"))
+                                }
+                            );
+                        }
+                    }
+                    reader.Close();
+                    return employee;
+                }
             }
         }
 

@@ -9,7 +9,7 @@ namespace BangazonWorkforce.Models
     public class TrainingProgram
     {
         public int Id{ get; set; }
-        
+
         public string Name { get; set; }
         [Display(Name = "Start Date")]
         public DateTime StartDate { get; set; }
