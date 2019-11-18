@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BangazonWorkforce.Models
+namespace BangazonWorkforce.Models.ViewModels
 {
-    public class TrainingProgram
+    public class TrainingProgramDetailViewModel
     {
-        public int Id{ get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; }
         [Display(Name = "Start Date")]

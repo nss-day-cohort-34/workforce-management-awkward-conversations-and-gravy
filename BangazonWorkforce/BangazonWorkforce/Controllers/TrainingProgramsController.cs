@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
+using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -69,7 +70,8 @@ namespace BangazonWorkforce.Controllers
         // GET: TrainingPrograms/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var training = GetTrainingProgramById(id);
+            return View(training);
         }
 
         // GET: TrainingPrograms/Create
@@ -153,6 +155,51 @@ namespace BangazonWorkforce.Controllers
             catch
             {
                 return View();
+            }
+        }
+        private TrainingProgram GetTrainingProgramById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"Select e.FirstName,et.EmployeeId, e.LastName ,tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
+                                        From TrainingProgram tp Join EmployeeTraining et
+                                        ON et.TrainingProgramId = tp.Id
+                                        JOIN Employee e ON e.Id = et.EmployeeId";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    var reader = cmd.ExecuteReader();
+                    TrainingProgram trainingProgram = null;
+                   
+                    while (reader.Read())
+                    {
+                        if (trainingProgram == null)
+                        {
+                            trainingProgram = new TrainingProgram
+                            {
+                                Id= id,
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate")),
+                                EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
+                                MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees")),
+                               
+                            };
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
+                        {
+                            trainingProgram.Employees.Add(
+                                new Employee()
+                                {
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                                }
+                           );
+                        }
+                    }
+                    reader.Close();
+                    return trainingProgram;
+                }
             }
         }
     }
