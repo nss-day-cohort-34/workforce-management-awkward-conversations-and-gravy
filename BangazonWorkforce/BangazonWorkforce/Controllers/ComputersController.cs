@@ -93,11 +93,11 @@ namespace BangazonWorkforce.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                                                        INSERT INTO Computer (Manufacturer, Make, PurchaseDate, DecomissionDate)
-                                                        VALUES (@Manufacturer, @Make, @PurchaseDate, Null)";
+                                                        INSERT INTO Computer (PurchaseDate, DecomissionDate, Manufacturer, Make)
+                                                        VALUES (@PurchaseDate, Null, @Manufacturer, @Make)";
+                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", model.Computer.PurchaseDate));
                         cmd.Parameters.Add(new SqlParameter("@Manufacturer", model.Computer.Manufacturer));
                         cmd.Parameters.Add(new SqlParameter("@Make", model.Computer.Make));
-                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", model.Computer.PurchaseDate));
                         cmd.ExecuteNonQuery();
 
                         return RedirectToAction(nameof(Index));
