@@ -1,0 +1,58 @@
+﻿@model BangazonWorkforce.Models.ViewModels.EmployeeDetailViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Employee</h4>
+    <hr />
+    <dl class="row">
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Department.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Department.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Computer.Manufacturer)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Computer.Manufacturer)
+        </dd>
+        <dt class="col-sm-12">
+            @Html.DisplayNameFor(model => model.TrainingPrograms)
+        </dt>
+        @foreach (var item in Model.TrainingPrograms)
+        {
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.Name) 
+            </dd>
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.StartDate) 
+            </dd>
+            <dd class="col-sm-4">
+            @Html.DisplayFor(modelItem => item.EndDate)
+            </dd>
+        }
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-action="Index">Back to List</a>
+</div>
