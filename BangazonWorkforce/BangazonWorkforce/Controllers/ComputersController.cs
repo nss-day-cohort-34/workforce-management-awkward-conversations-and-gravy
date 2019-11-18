@@ -136,7 +136,8 @@ namespace BangazonWorkforce.Controllers
         // GET: Computers/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var computer = GetComputerById(id);
+            return View(computer);
         }
 
         // POST: Computers/Delete/5
