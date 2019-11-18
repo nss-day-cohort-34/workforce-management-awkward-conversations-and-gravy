@@ -243,16 +243,37 @@ namespace BangazonWorkforce.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "Update Student set firstName = @firstName, lastName = @lastName, cohortId = @cohortId, slackHandle = @slackHandle  where id = @id";
-                        cmd.Parameters.Add(new SqlParameter("@firstName", student.FirstName));
-                        cmd.Parameters.Add(new SqlParameter("@lastName", student.LastName));
-                        cmd.Parameters.Add(new SqlParameter("@cohortId", student.CohortId));
-                        cmd.Parameters.Add(new SqlParameter("@slackHandle", student.SlackHandle));
+                        cmd.CommandText = @"BEGIN TRANSACTION [Tran1]
+
+                                              BEGIN TRY
+
+                                                  Update Employee set lastName = @lastName, departmentId = @cohortId, where id = @id
+                                                  Update ComputerEmployee set UnassignDate = @unassignDate where EmployeeId = @employeeId
+                                                  Insert into ComputerEmployee (EmployeeId, ComputerId, AssignDate) Values (@employeeId, @computerId, @assignDate)
+                
+                                                  
+
+                                                  COMMIT TRANSACTION [Tran1]
+
+                                              END TRY
+
+                                              BEGIN CATCH
+
+                                                  ROLLBACK TRANSACTION [Tran1]
+
+                                              END CATCH  ";
+                        var newDate = DateTime.Now;
+                        cmd.Parameters.Add(new SqlParameter("@lastName", model.Employee.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@departmentId", model.Employee.DepartmentId));
+                        cmd.Parameters.Add(new SqlParameter("@computerId", model.Computer.Id));
+                        cmd.Parameters.Add(new SqlParameter("@assignDate", newDate));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.Parameters.Add(new SqlParameter("@employeeId", id));
                         cmd.ExecuteNonQuery();
                     }
 
                     return RedirectToAction(nameof(Index));
+                }
             }
             catch
             {
