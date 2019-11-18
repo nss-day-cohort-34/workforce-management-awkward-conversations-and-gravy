@@ -205,7 +205,7 @@ namespace BangazonWorkforce.Controllers
             return View(viewModel);
         }
 
-    }
+    
 
     // POST: Employees/Edit/5
     [HttpPost]
@@ -270,6 +270,33 @@ namespace BangazonWorkforce.Controllers
                     reader.Close();
 
                     return departments;
+                }
+            }
+        }
+
+        private List<Computer> GetAllComputers()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id, name as computerName FROM Computer";
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Computer> computers = new List<Computer>();
+                    while (reader.Read())
+                    {
+                        computers.Add(new Computer
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("departmentName")),
+                        });
+                    }
+
+                    reader.Close();
+
+                    return computers;
                 }
             }
         }

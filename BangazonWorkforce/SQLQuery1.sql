@@ -1,0 +1,1 @@
+﻿Select * from Computer c left join ComputerEmployee ce on ce.ComputerId = c.Id left join Employee e on e.Id = ce.EmployeeId where c.DecomissionDate is null
