@@ -212,41 +212,45 @@ namespace BangazonWorkforce.Controllers
                                                ON et.EmployeeId = e.Id
                                         LEFT JOIN TrainingProgram tp 
                                                ON tp.Id = et.TrainingProgramId 
-                                        	WHERE ce.UnassignDate IS NULL
+                                        	WHERE ce.UnassignDate IS NULL And @id = e.id
                                          ORDER BY e.LastName, e.FirstName, tp.StartDate";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
 
                     EmployeeDetailViewModel employee = null;
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
-                        foreach (TrainingProgram tp in trainingPrograms)
+                        if (employee == null)
                         {
-                            tp.Name = reader.GetString(reader.GetOrdinal("TrainingProgramName"));
-                            tp.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
-                            trainingPrograms.Add(tp);
-                        }
-
-                        employee = new EmployeeDetailViewModel
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                            LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            Computer = new Computer
+                            employee = new EmployeeDetailViewModel
                             {
-                                Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer")),
-                                Make = reader.GetString(reader.GetOrdinal("Make"))
-                            },
-                            TrainingPrograms = trainingPrograms
-                        };
+                                Id = id,
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                Computer = new Computer
+                                {
+                                    Manufacturer = reader.GetString(reader.GetOrdinal("Computer")),
+                                },
+                                TrainingPrograms = new List<TrainingProgram>()
+                            };
+                        }
+                        if (!reader.IsDBNull(reader.GetOrdinal("TrainingProgramId")))
+                        {
+                            employee.TrainingPrograms.Add(
+                                new TrainingProgram()
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("TrainingProgramName")),
+                                    StartDate = reader.GetDateTime(reader.GetOrdinal("TrainingProgramStartDate"))
+                                }
+                            );
+                        }
                     }
                     reader.Close();
                     return employee;
                 }
             }
         }
-                
+
         private List<Department> GetAllDepartments()
         {
             using (SqlConnection conn = Connection)
