@@ -36,5 +36,6 @@ namespace BangazonWorkforce.Models
                 return $"{Manufacturer} {Make}";
              }
         }
+        public int AssignmentCount { get; set; }
     }
 }

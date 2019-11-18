@@ -20,7 +20,6 @@ namespace BangazonWorkforce.Controllers
         {
             _config = config;
         }
-
         public SqlConnection Connection
         {
             get
@@ -36,8 +35,6 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-
-
                     cmd.CommandText = @"
                                                         SELECT c.Id, c.Manufacturer, c.Make, c.PurchaseDate, c.DecomissionDate
                                                         FROM Computer c
@@ -197,7 +194,8 @@ namespace BangazonWorkforce.Controllers
                                 Make = reader.GetString(reader.GetOrdinal("Make")),
                                 PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
                                 // The code below checks to see if DecommissionDate is Null. If it is Null, it returns DateTime.MinValue.
-                                DecomissionDate = reader.IsDBNull(reader.GetOrdinal("DecomissionDate")) ? DateTime.MinValue : reader.GetDateTime(reader.GetOrdinal("DecomissionDate"))
+                                DecomissionDate = reader.IsDBNull(reader.GetOrdinal("DecomissionDate")) ? DateTime.MinValue : reader.GetDateTime(reader.GetOrdinal("DecomissionDate")),
+                                AssignmentCount = reader.GetInt32(reader.GetOrdinal("AssignmentCount"))
                             };
                         }
                     }
