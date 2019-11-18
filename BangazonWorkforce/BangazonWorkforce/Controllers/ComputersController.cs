@@ -68,7 +68,8 @@ namespace BangazonWorkforce.Controllers
         // GET: Computers/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var computer = GetComputerById(id);
+            return View(computer);
         }
 
         // GET: Computers/Create
@@ -137,6 +138,45 @@ namespace BangazonWorkforce.Controllers
             catch
             {
                 return View();
+            }
+        }
+
+        private Computer GetComputerById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                                        SELECT c.Id, c.Manufacturer, c.Make, c.PurchaseDate, c.DecomissionDate
+                                                        FROM Computer c
+                                                        WHERE c.Id = @Id
+                                                        ORDER BY c.PurchaseDate, c.Manufacturer, c.Make";
+
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Computer theComputer = null;
+                    if (reader.Read())
+                    {
+                        //if (theComputer == null)
+                        {
+                            theComputer = new Computer
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer")),
+                                Make = reader.GetString(reader.GetOrdinal("Make")),
+                                PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
+                                // The code below checks to see if DecommissionDate is Null. If it is Null, it returns DateTime.MinValue.
+                                DecomissionDate = reader.IsDBNull(reader.GetOrdinal("DecomissionDate")) ? DateTime.MinValue : reader.GetDateTime(reader.GetOrdinal("DecomissionDate"))
+                            };
+                        }
+                    }
+
+                    reader.Close();
+                    return theComputer;
+                }
             }
         }
 
