@@ -12,12 +12,6 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PurchaseDate)
         </dt>
         <dd class = "col-sm-10">
@@ -52,7 +46,7 @@
     <form asp-action="Delete">
         @if (Model.AssignmentCount > 0)
         {
-            <p>You cannot delete this computer because it has been assigned to an employee</p>
+            <p>You cannot delete this computer because it has been assigned to an employee.</p>
         }
         else
         {
