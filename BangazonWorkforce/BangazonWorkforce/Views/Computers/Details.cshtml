@@ -19,8 +19,11 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DecomissionDate)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DecomissionDate)
+        <dd class="col-sm-10">
+            @if (Model.DecomissionDate != DateTime.MinValue)
+            {
+                @Html.DisplayFor(model => model.DecomissionDate)
+            }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Manufacturer)

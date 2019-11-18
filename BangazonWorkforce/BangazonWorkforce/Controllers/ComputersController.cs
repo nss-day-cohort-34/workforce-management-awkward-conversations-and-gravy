@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BangazonWorkforce.Models;
+using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -75,19 +76,33 @@ namespace BangazonWorkforce.Controllers
         // GET: Computers/Create
         public ActionResult Create()
         {
+
             return View();
         }
 
         // POST: Computers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(ComputerCreateViewModel model)
         {
             try
             {
-                // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                                                        INSERT INTO Computer (Manufacturer, Make, PurchaseDate, DecomissionDate)
+                                                        VALUES (@Manufacturer, @Make, @PurchaseDate, Null)";
+                        cmd.Parameters.Add(new SqlParameter("@Manufacturer", model.Computer.Manufacturer));
+                        cmd.Parameters.Add(new SqlParameter("@Make", model.Computer.Make));
+                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", model.Computer.PurchaseDate));
+                        cmd.ExecuteNonQuery();
 
-                return RedirectToAction(nameof(Index));
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
             }
             catch
             {
@@ -179,6 +194,7 @@ namespace BangazonWorkforce.Controllers
                 }
             }
         }
+
 
     }
 }
