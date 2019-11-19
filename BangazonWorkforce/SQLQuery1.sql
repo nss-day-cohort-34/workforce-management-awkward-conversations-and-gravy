@@ -1,7 +1,13 @@
-﻿Select c.make + ' ' + c. manufacturer as ComputerName, c.id as ComputerId
-                                from Computer c left
-                                join ComputerEmployee ce on ce.ComputerId = c.Id left
-                                join Employee e on e.Id = ce.EmployeeId
-                                where c.DecomissionDate is null and (ce.UnassignDate > ce.AssignDate or ce.AssignDate is null) 
-								group by c.Id, c.Make, c.Manufacturer
-								--And ce.ComputerId not in (Select ce.ComputerId from ComputerEmployee ce where ce.UnassignDate is null)  
+﻿SELECT c.Id, c.Manufacturer, c.Make
+FROM Computer c
+LEFT JOIN ComputerEmployee ce ON c.Id = ce.ComputerId
+WHERE ce.Id IS NULL 
+OR c.Id IN (
+        SELECT ce.ComputerId
+        FROM ComputerEmployee ce
+        WHERE ce.UnassignDate IS NOT NULL and c.DecomisasionDate is null
+                       AND ce.ComputerId NOT IN (
+                                SELECT ce.ComputerId
+                                FROM ComputerEmployee ce
+                                WHERE ce.UnassignDate IS NULL)
+                                )

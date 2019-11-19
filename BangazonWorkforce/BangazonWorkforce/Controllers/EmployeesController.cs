@@ -179,7 +179,7 @@ namespace BangazonWorkforce.Controllers
             else
             {
 
-                //computers.Add(oneComputer);
+                computers.Add(oneComputer);
                 viewModel.ComputerId = oneComputer.Id;
                 var selectItemsComputers = computers
                     .Select(computer => new SelectListItem
@@ -423,22 +423,35 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"Select c.make + ' ' + c. manufacturer as ComputerName, c.id as ComputerId
-                                from Computer c left
-                                join ComputerEmployee ce on ce.ComputerId = c.Id left
-                                join Employee e on e.Id = ce.EmployeeId
-                                where c.DecomissionDate is null and (ce.UnassignDate > ce.AssignDate or ce.AssignDate is null) 
-								group by c.Id, c.Make, c.Manufacturer";
+                    cmd.CommandText = @"SELECT c.Id, c.Manufacturer + ' ' + c.Make as ComputerName
+FROM Computer c
+LEFT JOIN ComputerEmployee ce ON c.Id = ce.ComputerId
+WHERE ce.Id IS NULL 
+OR c.Id IN (
+        SELECT ce.ComputerId
+        FROM ComputerEmployee ce
+        WHERE ce.UnassignDate IS NOT NULL and c.DecomissionDate is null
+                       AND ce.ComputerId NOT IN (
+                                SELECT ce.ComputerId
+                                FROM ComputerEmployee ce
+                                WHERE ce.UnassignDate IS NULL)
+                                )";
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     List<Computer> computers = new List<Computer>();
+
                     while (reader.Read())
                     {
-                        computers.Add(new Computer
+                        int Id = reader.GetInt32(reader.GetOrdinal("Id"));
+
+                        if (computers.Find(c => c.Id == Id) == null)
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("ComputerId")),
-                            Make = reader.GetString(reader.GetOrdinal("ComputerName")),
-                        });
+                            computers.Add(new Computer
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Make = reader.GetString(reader.GetOrdinal("ComputerName")),
+                            });
+                        }
                     }
 
                     reader.Close();
@@ -455,9 +468,9 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        Select c.make, c. manufacturer, c.PurchaseDate, c.id
+                        Select c. manufacturer + ' ' + c.make as ComputerName, c.id
                                 from Computer c left join ComputerEmployee ce on ce.ComputerId = c.Id left join Employee e on e.Id = ce.EmployeeId 
-                                where ce.EmployeeId = @id and DecomissionDate is null and UnassignDate is null;";
+                                where ce.EmployeeId = @id and DecomissionDate is null and UnassignDate is null";
 
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
@@ -470,9 +483,7 @@ namespace BangazonWorkforce.Controllers
                             computer = new Computer
                             {
                                 Id = reader.GetInt32(reader.GetOrdinal("id")),
-                                Make = reader.GetString(reader.GetOrdinal("make")),
-                                Manufacturer = reader.GetString(reader.GetOrdinal("manufacturer")),
-                                PurchaseDate = reader.GetDateTime(reader.GetOrdinal("purchaseDate")),
+                                Make = reader.GetString(reader.GetOrdinal("ComputerName")),
                             };
                         }
 
