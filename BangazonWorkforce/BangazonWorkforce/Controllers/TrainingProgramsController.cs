@@ -224,15 +224,14 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"Select et.EmployeeId, e.FirstName ,e.LastName,tp.Name, tp.StartDate, tp.EndDate, tp.MaxAttendees
-                                        From TrainingProgram tp Join EmployeeTraining et
+                                        From TrainingProgram tp LEFT Join EmployeeTraining et
                                         ON et.TrainingProgramId = tp.Id
-                                        JOIN Employee e ON e.Id = et.EmployeeId
+                                        LEFT JOIN Employee e ON e.Id = et.EmployeeId
                                          WHERE tp.Id = @Id ";
                     
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
                     TrainingProgram trainingProgram = null;
-                   
                     while (reader.Read())
                     {
                         if (trainingProgram == null)
@@ -246,13 +245,13 @@ namespace BangazonWorkforce.Controllers
                                 MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees")),
                                
                             };
+
                         }
                         if (!reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
                         {
                             trainingProgram.Employees.Add(
                                 new Employee()
                                 {
-                                    //Id =
                                     FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                                     LastName = reader.GetString(reader.GetOrdinal("LastName"))
                                 }
