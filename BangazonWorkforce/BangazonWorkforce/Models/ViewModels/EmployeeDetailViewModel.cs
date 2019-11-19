@@ -15,6 +15,7 @@ namespace BangazonWorkforce.Models.ViewModels
 
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
+        [Display(Name = "Department")]
         public int DepartmentId { get; set; }
         [Display(Name = "Supervisor")]
         public bool IsSupervisor { get; set; }
@@ -22,6 +23,7 @@ namespace BangazonWorkforce.Models.ViewModels
 
         [Display(Name = "Computer")]
         public Computer Computer { get; set; }
+        [Display(Name = "Training Program(s)")]
         public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
     }
 }
