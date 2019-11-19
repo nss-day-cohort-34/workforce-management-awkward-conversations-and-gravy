@@ -116,7 +116,8 @@ namespace BangazonWorkforce.Controllers
         // GET: TrainingPrograms/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var training = GetTrainingProgramById(id);
+            return View(training);
         }
 
         // POST: TrainingPrograms/Edit/5
