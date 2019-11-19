@@ -138,7 +138,12 @@ namespace BangazonWorkforce.Controllers
                                                StartDate= @startDate,
                                                 EndDate = @endDate,
                                                 MaxAttendees =@maxAttendees
-                                                WHERE Id = @id";
+                                                FROM TrainingProgram
+                                                LEFT JOIN EmployeeTraining ON TrainingProgram.Id = EmployeeTraining.Id
+                                                WHERE StartDate >= GetDate()AND Id = @id AND TrainingProgram.MaxAttendees >= COUNT(EmployeeTraining.Id)";
+
+
+
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@name", updatedTrainingProgram.Name));
                         cmd.Parameters.Add(new SqlParameter("@startDate", updatedTrainingProgram.StartDate));
