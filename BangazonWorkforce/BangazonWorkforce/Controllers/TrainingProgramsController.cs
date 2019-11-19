@@ -156,11 +156,11 @@ namespace BangazonWorkforce.Controllers
                         cmd.CommandText = @"
 	                    	DELETE et FROM EmployeeTraining et 
 	                     LEFT JOIN TrainingProgram tp ON et.TrainingProgramId = tp.Id
-	                    	 WHERE et.TrainingProgramId = 9 AND SYSDATETIME() <= tp.StartDate;
+	                    	 WHERE et.TrainingProgramId = @Id AND SYSDATETIME() <= tp.StartDate;
 	                    	DELETE tp FROM TrainingProgram tp
 	                     LEFT JOIN EmployeeTraining et
 	                    		ON et.TrainingProgramId = tp.Id
-	                         WHERE tp.Id = 9 AND SYSDATETIME() <= tp.StartDate";
+	                         WHERE tp.Id = @Id AND SYSDATETIME() <= tp.StartDate";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
                         cmd.ExecuteNonQuery();
