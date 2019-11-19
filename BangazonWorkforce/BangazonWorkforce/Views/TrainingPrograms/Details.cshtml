@@ -43,16 +43,25 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Employees)
         </dt>
-        <dt class="col-sm-2">
-            @foreach (var item in Model.Employees)
 
+        @foreach (var item in Model.Employees)
+
+        {
+            if (item != null)
             {
-                if (item != null)
-                {
-                @Html.DisplayFor(model => item.FirstName) @Html.DisplayFor(model => item.LastName)
-                }
+                <dt class="col-sm-2" style="font-weight: normal">
+                    @Html.DisplayFor(model => item.FirstName)  @Html.DisplayFor(model => item.LastName)
+                </dt>
+
             }
-        </dt>
+            else
+            {
+
+                <dt class="col-sm-2">
+                    <text>There are no employees signed up for this training program.</text>
+                </dt>
+            }
+        }
 
 
 
