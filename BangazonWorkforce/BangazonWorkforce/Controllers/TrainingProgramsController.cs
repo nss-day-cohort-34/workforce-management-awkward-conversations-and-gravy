@@ -123,19 +123,40 @@ namespace BangazonWorkforce.Controllers
         // POST: TrainingPrograms/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, TrainingProgram trainingProgram)
         {
+            var updatedTrainingProgram = trainingProgram;
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE TrainingProgram
+                                           SET Name = @name,
+                                               StartDate= @startDate,
+                                                EndDate = @endDate,
+                                                MaxAttendees =@maxAttendees
+                                                WHERE Id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+                        cmd.Parameters.Add(new SqlParameter("@name", updatedTrainingProgram.Name));
+                        cmd.Parameters.Add(new SqlParameter("@startDate", updatedTrainingProgram.StartDate));
+                        cmd.Parameters.Add(new SqlParameter("@endDate", updatedTrainingProgram.EndDate));
+                        cmd.Parameters.Add(new SqlParameter("@maxAttendees", updatedTrainingProgram.MaxAttendees));
+                        cmd.ExecuteNonQuery();
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
 
-                return RedirectToAction(nameof(Index));
+               
             }
             catch
             {
                 return View();
             }
         }
+
 
         // GET: TrainingPrograms/Delete/5
         public ActionResult Delete(int id)
