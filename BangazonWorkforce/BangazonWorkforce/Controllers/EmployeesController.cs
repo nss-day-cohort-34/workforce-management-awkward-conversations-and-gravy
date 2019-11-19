@@ -525,7 +525,6 @@ OR c.Id IN (
                             MaxAttendees = reader.GetInt32(reader.GetOrdinal("tp.MaxAttendees"))
                         });
                     }
-
                     reader.Close();
                     return trainingPrograms;
                 };
