@@ -5,6 +5,7 @@ namespace BangazonWorkforce.Models
 {
     public class Department
     {
+        [Display(Name = "Department")]
         public int Id { get; set; }
 
         [Display(Name = "Department")]

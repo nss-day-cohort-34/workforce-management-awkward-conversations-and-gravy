@@ -1,13 +1,22 @@
-﻿SELECT c.Id, c.Manufacturer, c.Make
-FROM Computer c
-LEFT JOIN ComputerEmployee ce ON c.Id = ce.ComputerId
-WHERE ce.Id IS NULL 
-OR c.Id IN (
-        SELECT ce.ComputerId
-        FROM ComputerEmployee ce
-        WHERE ce.UnassignDate IS NOT NULL and c.DecomisasionDate is null
-                       AND ce.ComputerId NOT IN (
-                                SELECT ce.ComputerId
-                                FROM ComputerEmployee ce
-                                WHERE ce.UnassignDate IS NULL)
-                                )
+﻿SELECT e.FirstName, 
+												e.LastName, 
+												  d.Id as DepartmentId,
+                                        		  d.Name as DepartmentName, 
+												  tp.Id as TrainingProgramId,
+                                        		  tp.Name as TrainingProgramName,
+                                        		  tp.StartDate as TrainingProgramStartDate,
+												  c.Id as ComputerId,
+                                                  c.Manufacturer + ' ' + c.Make as Computer
+                                             FROM Employee e
+                                        LEFT JOIN Department d 
+                                               ON d.Id = e.DepartmentId
+                                        LEFT JOIN ComputerEmployee ce 
+                                               ON ce.EmployeeId = e.Id and ce.UnassignDate is null
+                                        LEFT JOIN Computer c 
+                                               ON ce.ComputerId = c.Id 
+                                        LEFT JOIN EmployeeTraining et 
+                                               ON et.EmployeeId = e.Id
+                                        LEFT JOIN TrainingProgram tp 
+                                               ON tp.Id = et.TrainingProgramId 
+                                        	WHERE 3 = e.id
+                                         ORDER BY e.LastName, e.FirstName, tp.StartDate
