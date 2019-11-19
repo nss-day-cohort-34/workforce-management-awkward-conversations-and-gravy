@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BangazonWorkforce.Models;
+﻿using BangazonWorkforce.Models;
 using BangazonWorkforce.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BangazonWorkforce.Controllers
 {
@@ -491,6 +490,46 @@ OR c.Id IN (
                     reader.Close();
                     return computer;
                 }
+            }
+        }
+
+        private List<TrainingProgram> GetFutureTrainingPrograms()
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT tp.Id,
+                                               tp.Name, 
+                                               tp.StartDate, 
+                                               tp.EndDate, 
+                                               tp.MaxAttendees,
+                                          FROM TrainingProgram tp
+                                     LEFT JOIN EmployeeTraining et
+                                            ON tp.Id = et.TrainingProgramId
+                                         WHERE SYSDATETIME() <= StartDate";
+
+                    var reader = cmd.ExecuteReader();
+
+                    List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
+
+                    while (reader.Read())
+                    {
+                        trainingPrograms.Add(new TrainingProgram
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("tp.Id")),
+                            Name = reader.GetString(reader.GetOrdinal("tp.Name")),
+                            StartDate = reader.GetDateTime(reader.GetOrdinal("tp.StartDate")),
+                            EndDate = reader.GetDateTime(reader.GetOrdinal("tp.EndDate")),
+                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("tp.MaxAttendees"))
+                        });
+                    }
+
+                    reader.Close();
+                    return trainingPrograms;
+                };
+
             }
         }
     }

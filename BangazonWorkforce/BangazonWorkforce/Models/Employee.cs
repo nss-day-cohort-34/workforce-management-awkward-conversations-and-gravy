@@ -20,5 +20,6 @@ namespace BangazonWorkforce.Models
         [Display(Name = "Supervisor")]
         public bool IsSupervisor { get; set; }
         public Department Department { get; set; }
+        public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
     }
 }
