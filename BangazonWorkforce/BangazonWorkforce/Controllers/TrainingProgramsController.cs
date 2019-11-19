@@ -43,7 +43,7 @@ namespace BangazonWorkforce.Controllers
                                   FROM 
                                         TrainingProgram
                                   WHERE
-                                        StartDate <= GetDate()";
+                                        StartDate >= GetDate()";
 
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
