@@ -154,8 +154,13 @@ namespace BangazonWorkforce.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                          DELETE FROM EmployeeTraining WHERE TrainingProgramId = @id;
-                          DELETE FROM TrainingProgram WHERE Id = @id";
+	                    	DELETE et FROM EmployeeTraining et 
+	                     LEFT JOIN TrainingProgram tp ON et.TrainingProgramId = tp.Id
+	                    	 WHERE et.TrainingProgramId = @Id AND SYSDATETIME() <= tp.StartDate;
+	                    	DELETE tp FROM TrainingProgram tp
+	                     LEFT JOIN EmployeeTraining et
+	                    		ON et.TrainingProgramId = tp.Id
+	                         WHERE tp.Id = @Id AND SYSDATETIME() <= tp.StartDate";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
                         cmd.ExecuteNonQuery();
