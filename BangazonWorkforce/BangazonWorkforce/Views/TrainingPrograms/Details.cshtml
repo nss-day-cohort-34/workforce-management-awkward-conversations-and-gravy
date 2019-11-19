@@ -7,15 +7,10 @@
 <h1>Details</h1>
 
 <div>
-    <h4>TrainingProgramDetailViewModel</h4>
+    <h4>Training Program </h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
+   
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
@@ -45,12 +40,10 @@
         </dt>
         @foreach (var item in Model.Employees)
         {
-            <dd class="col-sm-1">
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </dd>
-            <dd class="col-sm-1">
-                @Html.DisplayFor(modelItem => item.LastName)
-            </dd>
+    <dd class="col-sm-12">
+        @Html.DisplayFor(modelItem => item.FirstName)  @Html.DisplayFor(modelItem => item.LastName)
+    </dd>
+           
 
         }
     </dl>

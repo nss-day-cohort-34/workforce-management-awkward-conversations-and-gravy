@@ -222,7 +222,7 @@ namespace BangazonWorkforce.Controllers
                                         From TrainingProgram tp Join EmployeeTraining et
                                         ON et.TrainingProgramId = tp.Id
                                         JOIN Employee e ON e.Id = et.EmployeeId
-                                         ";
+                                         WHERE tp.Id = @Id ";
                     
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
@@ -247,6 +247,7 @@ namespace BangazonWorkforce.Controllers
                             trainingProgram.Employees.Add(
                                 new Employee()
                                 {
+                                    //Id =
                                     FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                                     LastName = reader.GetString(reader.GetOrdinal("LastName"))
                                 }
