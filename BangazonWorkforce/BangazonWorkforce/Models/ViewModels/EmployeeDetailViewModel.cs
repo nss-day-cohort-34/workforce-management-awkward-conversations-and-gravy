@@ -23,6 +23,7 @@ namespace BangazonWorkforce.Models.ViewModels
 
         [Display(Name = "Computer")]
         public Computer Computer { get; set; }
+        [Display(Name = "Training Program(s)")]
         public List<TrainingProgram> TrainingPrograms { get; set; } = new List<TrainingProgram>();
     }
 }
