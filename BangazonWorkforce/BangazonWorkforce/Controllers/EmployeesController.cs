@@ -143,7 +143,6 @@ namespace BangazonWorkforce.Controllers
             var viewModel = new EmployeeEditViewModel();
             var departments = GetAllDepartments();
             var oneComputer = GetComputerById(id);
-            viewModel.Computer = oneComputer;
             var selectItems = departments
                 .Select(department => new SelectListItem
                 {
@@ -172,7 +171,7 @@ namespace BangazonWorkforce.Controllers
 
                 selectItemsComputers.Insert(0, new SelectListItem
                 {
-                    Text = "Choose computer...",
+                    Text = "No Computer Assigned",
                     Value = "0"
                 });
                 viewModel.Computers = selectItemsComputers;
@@ -180,7 +179,8 @@ namespace BangazonWorkforce.Controllers
             else
             {
 
-                computers.Add(oneComputer);
+                //computers.Add(oneComputer);
+                viewModel.ComputerId = oneComputer.Id;
                 var selectItemsComputers = computers
                     .Select(computer => new SelectListItem
                     {
@@ -191,7 +191,7 @@ namespace BangazonWorkforce.Controllers
 
                 selectItemsComputers.Insert(0, new SelectListItem
                 {
-                    Text = "Choose computer...",
+                    Text = "No Computer Assigned",
                     Value = "0"
                 });
                 viewModel.Computers = selectItemsComputers;
@@ -202,9 +202,9 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                               SELECT s.Id, s.firstName, s.lastName, s.departmentId
-                                 FROM Employee s
-                                    WHERE @id = s.id
+                               SELECT e.Id, e.firstName, e.lastName, e.departmentId
+                                 FROM Employee e
+                                    WHERE @id = e.id
                                          ";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -243,29 +243,41 @@ namespace BangazonWorkforce.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"BEGIN TRANSACTION [Tran1]
+                        var oneComputer = GetComputerById(id);
+                        if (model.ComputerId == 0 && oneComputer != null)
+                        {
+                            cmd.CommandText = @"
+                                                  Update Employee set firstName = @firstName, lastName = @lastName, departmentId = @departmentId where id = @id
+                                                  Update ComputerEmployee set UnassignDate = @unassignDate where EmployeeId = @employeeId
+                                               ";
 
-                                              BEGIN TRY
-
-                                                  Update Employee set lastName = @lastName, departmentId = @cohortId, where id = @id
+                        }
+                        else if (model.ComputerId != 0 && oneComputer == null)
+                        {
+                            cmd.CommandText = @"
+                                                  Update Employee set firstName = @firstName, lastName = @lastName, departmentId = @departmentId where id = @id
+                                                  Insert into ComputerEmployee (EmployeeId, ComputerId, AssignDate) Values (@employeeId, @computerId, @assignDate)
+                                               ";
+                        }
+                        else if (model.ComputerId != 0)
+                        {
+                            cmd.CommandText = @"
+                                                  Update Employee set firstName = @firstName, lastName = @lastName, departmentId = @departmentId where id = @id
                                                   Update ComputerEmployee set UnassignDate = @unassignDate where EmployeeId = @employeeId
                                                   Insert into ComputerEmployee (EmployeeId, ComputerId, AssignDate) Values (@employeeId, @computerId, @assignDate)
-                
-                                                  
-
-                                                  COMMIT TRANSACTION [Tran1]
-
-                                              END TRY
-
-                                              BEGIN CATCH
-
-                                                  ROLLBACK TRANSACTION [Tran1]
-
-                                              END CATCH  ";
+                                               ";
+                        }
+                        else
+                        {
+                            cmd.CommandText = @"
+                                                  Update Employee set firstName = @firstName, lastName = @lastName, departmentId = @departmentId where id = @id
+                                               ";
+                        }
                         var newDate = DateTime.Now;
                         cmd.Parameters.Add(new SqlParameter("@lastName", model.Employee.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@firstName", model.Employee.FirstName));
                         cmd.Parameters.Add(new SqlParameter("@departmentId", model.Employee.DepartmentId));
-                        cmd.Parameters.Add(new SqlParameter("@computerId", model.Computer.Id));
+                        cmd.Parameters.Add(new SqlParameter("@computerId", model.ComputerId));
                         cmd.Parameters.Add(new SqlParameter("@assignDate", newDate));
                         cmd.Parameters.Add(new SqlParameter("@unassignDate", newDate));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
@@ -411,11 +423,12 @@ namespace BangazonWorkforce.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"Select c.make + ' ' + c. manufacturer as ComputerName, e.firstName, e.lastName, e.departmentId, c.id as ComputerId
+                    cmd.CommandText = @"Select c.make + ' ' + c. manufacturer as ComputerName, c.id as ComputerId
                                 from Computer c left
                                 join ComputerEmployee ce on ce.ComputerId = c.Id left
                                 join Employee e on e.Id = ce.EmployeeId
-                                where c.DecomissionDate is null And ce.ComputerId is null ";
+                                where c.DecomissionDate is null and (ce.UnassignDate > ce.AssignDate or ce.AssignDate is null) 
+								group by c.Id, c.Make, c.Manufacturer";
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     List<Computer> computers = new List<Computer>();
@@ -442,9 +455,9 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        Select c.make, c. manufacturer, c.PurchaseDate
+                        Select c.make, c. manufacturer, c.PurchaseDate, c.id
                                 from Computer c left join ComputerEmployee ce on ce.ComputerId = c.Id left join Employee e on e.Id = ce.EmployeeId 
-                                where ce.EmployeeId = @id and DecomissionDate is null;";
+                                where ce.EmployeeId = @id and DecomissionDate is null and UnassignDate is null;";
 
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     var reader = cmd.ExecuteReader();
@@ -456,7 +469,7 @@ namespace BangazonWorkforce.Controllers
                         {
                             computer = new Computer
                             {
-                                Id = id,
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
                                 Make = reader.GetString(reader.GetOrdinal("make")),
                                 Manufacturer = reader.GetString(reader.GetOrdinal("manufacturer")),
                                 PurchaseDate = reader.GetDateTime(reader.GetOrdinal("purchaseDate")),
