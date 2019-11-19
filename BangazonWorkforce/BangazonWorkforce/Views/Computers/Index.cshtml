@@ -13,10 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Manufacturer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Make)
+                @Html.DisplayNameFor(model => model.ComputerInfo)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PurchaseDate)
@@ -31,10 +28,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Manufacturer)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Make)
+                @Html.ActionLink(item.ComputerInfo.ToString(), "Details", new { id=item.Id })
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PurchaseDate)
