@@ -16,5 +16,6 @@ namespace BangazonWorkforce.Models.ViewModels
         public int ComputerId { get; set; }
 
         public List<SelectListItem> TrainingPrograms { get; set; } = new List<SelectListItem>();
+        public List<int> SelectedTrainingProgramIds { get; set; } = new List<int>();
     }
 }

@@ -226,9 +226,12 @@ namespace BangazonWorkforce.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("firstName")),
                             LastName = reader.GetString(reader.GetOrdinal("lastName")),
-                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId")),
+                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
                         };
+
                         viewModel.Employee = employee;
+                        
+                        viewModel.SelectedTrainingProgramIds = employee.TrainingPrograms.Select(tp => tp.Id).ToList();
                     }
 
                     reader.Close();
