@@ -15,16 +15,6 @@ namespace BangazonWorkforce.Models.ViewModels
         [Display(Name = "Computer")]
         public int ComputerId { get; set; }
 
-        public List<SelectListItem> TrainingProgramOptions
-        {
-            get
-            {
-                if (AllTrainingPrograms == null) return null;
-
-                return AllTrainingPrograms
-                    .Select(tp => new SelectListItem(tp.Name, tp.Id.ToString()))
-                    .ToList();
-            }
-        }
+        public List<SelectListItem> TrainingPrograms { get; set; } = new List<SelectListItem>();
     }
 }

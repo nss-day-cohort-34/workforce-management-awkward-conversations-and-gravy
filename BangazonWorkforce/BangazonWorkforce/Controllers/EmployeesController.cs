@@ -142,6 +142,7 @@ namespace BangazonWorkforce.Controllers
             var viewModel = new EmployeeEditViewModel();
             var departments = GetAllDepartments();
             var oneComputer = GetComputerById(id);
+            var trainingPrograms = GetFutureTrainingPrograms();
             var selectItems = departments
                 .Select(department => new SelectListItem
                 {
@@ -195,6 +196,15 @@ namespace BangazonWorkforce.Controllers
                 });
                 viewModel.Computers = selectItemsComputers;
             }
+
+            var selectTrainingProgramsItems = trainingPrograms
+                .Select(tp => new SelectListItem
+                {
+                    Text = tp.Name,
+                    Value = tp.Id.ToString()
+                }).ToList();
+            viewModel.TrainingPrograms = selectTrainingProgramsItems;
+
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
@@ -500,17 +510,17 @@ OR c.Id IN (
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT tp.Id,
-                                               tp.Name, 
-                                               tp.StartDate, 
-                                               tp.EndDate, 
-                                               tp.MaxAttendees,
+                    cmd.CommandText = @"SELECT tp.Id as TrainingProgramId,
+                                               tp.Name as TrainingProgramName, 
+                                               tp.StartDate as TrainingProgramStartDate, 
+                                               tp.EndDate as TrainingProgramEndDate, 
+                                               tp.MaxAttendees as TrainingProgramMaxAttendees
                                           FROM TrainingProgram tp
                                      LEFT JOIN EmployeeTraining et
                                             ON tp.Id = et.TrainingProgramId
                                          WHERE SYSDATETIME() <= StartDate";
 
-                    var reader = cmd.ExecuteReader();
+                    SqlDataReader reader = cmd.ExecuteReader();
 
                     List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
 
@@ -518,11 +528,11 @@ OR c.Id IN (
                     {
                         trainingPrograms.Add(new TrainingProgram
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("tp.Id")),
-                            Name = reader.GetString(reader.GetOrdinal("tp.Name")),
-                            StartDate = reader.GetDateTime(reader.GetOrdinal("tp.StartDate")),
-                            EndDate = reader.GetDateTime(reader.GetOrdinal("tp.EndDate")),
-                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("tp.MaxAttendees"))
+                            Id = reader.GetInt32(reader.GetOrdinal("TrainingProgramId")),
+                            Name = reader.GetString(reader.GetOrdinal("TrainingProgramName")),
+                            StartDate = reader.GetDateTime(reader.GetOrdinal("TrainingProgramStartDate")),
+                            EndDate = reader.GetDateTime(reader.GetOrdinal("TrainingProgramEndDate")),
+                            MaxAttendees = reader.GetInt32(reader.GetOrdinal("TrainingProgramMaxAttendees"))
                         });
                     }
                     reader.Close();
