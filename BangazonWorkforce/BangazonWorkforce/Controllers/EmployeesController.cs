@@ -211,9 +211,11 @@ namespace BangazonWorkforce.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                               SELECT e.Id, e.firstName, e.lastName, e.departmentId
+                               SELECT e.Id, e.firstName, e.lastName, e.departmentId, tp.Name as TrainingProgramName, tp.Id as TrainingProgramId
                                  FROM Employee e
-                                    WHERE @id = e.id
+                            LEFT JOIN EmployeeTraining et ON e.Id = et.EmployeeId
+                            LEFT JOIN TrainingProgram tp on tp.Id = et.TrainingProgramId
+                                WHERE @id = e.id
                                          ";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -226,12 +228,22 @@ namespace BangazonWorkforce.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("firstName")),
                             LastName = reader.GetString(reader.GetOrdinal("lastName")),
-                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId"))
+                            DepartmentId = reader.GetInt32(reader.GetOrdinal("departmentId")),
+                            TrainingPrograms = new List<TrainingProgram>()
                         };
-
+                        if (!reader.IsDBNull(reader.GetOrdinal("TrainingProgramId")))
+                        {
+                            employee.TrainingPrograms.Add(
+                                new TrainingProgram()
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("TrainingProgramId")),
+                                    Name = reader.GetString(reader.GetOrdinal("TrainingProgramName"))
+                                }
+                            );
+                        }
                         viewModel.Employee = employee;
-                        
                         viewModel.SelectedTrainingProgramIds = employee.TrainingPrograms.Select(tp => tp.Id).ToList();
+                        
                     }
 
                     reader.Close();
